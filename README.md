@@ -13,3 +13,6 @@ run app.py
 
 ### Note 
 Modify the ip inside the app.py to corespond to your local IP, or just put localhost if you test on the host.
+
+
+<video src="https://github.com/euhenn/FlaskWebApp/blob/main/demo.mp4" controls width="100%"></video>
