@@ -21,3 +21,7 @@ Modify the ip inside the app.py to corespond to your local IP, or just put local
 
 ### Demo 
 ![Demo Animation](extras/demo.gif)
+
+### Dev plan
+
+![Dev Plan Diagram](extras/DashboardDevelopmentPlan.png)
