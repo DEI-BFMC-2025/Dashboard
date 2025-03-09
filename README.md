@@ -1,9 +1,9 @@
-### We need to run app.py as sudo (because to remove a socket file from the folder /tmp/ you need sudo) #TODO change the folder /tmp/ to a /sockets/
+We need to run app.py as sudo (because to remove a socket file from the folder /tmp/ you need sudo) #TODO change the folder /tmp/ to a /sockets/
 ```bash
 sudo su
 ```
 
-### If running in the venv activate the environment:
+If running in the venv activate the environment:
 ```bash
 source venv/bin/activate
 ```
