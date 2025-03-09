@@ -1,0 +1,133 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #D4DCFF;
+}
+
+.dashboard {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.section {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+    color: #2c3e50;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 10px;
+    margin-top: 0;
+}
+
+.metric-group {
+    margin: 15px 0;
+}
+
+.metric-row {
+    margin: 8px 0;
+}
+
+.metric-label {
+    font-weight: bold;
+    color: #000000;
+}
+
+.metric-value {
+    color: #2c3e50;
+    width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+th, td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #f8f9fa;
+}
+
+.control-section {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.button-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    flex: 1;
+}
+
+button:hover {
+    background-color: #2980b9;
+}
+
+.command-line {
+    background-color: #2c3e50;
+    color: white;
+    padding: 15px;
+    border-radius: 4px;
+    font-family: monospace;
+}
+
+.command-line input {
+    width: 100%;
+    padding: 10px 20px 10px 10px;
+    margin: 10px 0;
+    border-radius: 4px;
+    border: none;
+    box-sizing: border-box;
+}
+
+.camera-feed {
+    grid-column: 1 / -1;
+    text-align: center;
+}
+
+.camera-feed img {
+    max-width: 100%;
+    border-radius: 8px;
+}
+
+.terminal-section {
+    grid-column: 1 / -1;
+}
+
+#terminal {
+    background-color: #2c3e50;
+    color: white;
+    padding: 15px;
+    border-radius: 4px;
+    font-family: monospace;
+    height: 300px;
+    overflow: hidden;
+}

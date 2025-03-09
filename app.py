@@ -1,12 +1,15 @@
-import cv2                                          # type: ignore
-import time
-from socket_metrics_receive import MetricReceiver  
 from flask import Flask, render_template, Response, jsonify, request
-from flask_socketio import SocketIO, emit           # type: ignore
+from flask_socketio import SocketIO, emit
 import threading
-import paramiko                                     # type: ignore
+import paramiko
+import subprocess
 from unix_socket_camera import UnixSocketCamera
-
+from socket_metrics_receive import MetricReceiver
+import time
+import cv2
+import os
+import pty
+import select
 
 app = Flask(__name__)
 socketio = SocketIO(app)
@@ -85,6 +88,33 @@ def stop_script():
     except Exception as e:
         return jsonify(success=False, message=str(e))
     
+@app.route('/test_script', methods=['POST'])
+def test_script():
+    """Placeholder for script execution"""
+    return jsonify(
+        success=False,
+        message="Test script not implemented yet",
+        status=501
+    ), 501
+
+@app.route('/imu_script', methods=['POST'])
+def imu_script():
+    """Placeholder for script execution"""
+    return jsonify(
+        success=False,
+        message="IMU script not implemented yet",
+        status=501
+    ), 501
+
+@app.route('/gps_script', methods=['POST'])
+def gps_script():
+    """Placeholder for script execution"""
+    return jsonify(
+        success=False,
+        message="GPS script not implemented yet",
+        status=501
+    ), 501
+    
 @app.route('/run_custom_script', methods=['POST'])
 def run_custom_script():
     """Run a custom script via SSH."""
@@ -143,6 +173,35 @@ def stop_custom_script():
     except Exception as e:
         return jsonify(success=False, message=str(e))
 
+@socketio.on('terminal_input')
+def handle_terminal_input(data):
+    if not hasattr(handle_terminal_input, "fd"):
+        # Spawn a pseudo-terminal for the shell
+        pid, fd = pty.fork()
+        if pid == 0:
+            # Child process - start the shell
+            os.execvp("bash", ["bash"])
+        else:
+            # Parent process - store the file descriptor
+            handle_terminal_input.fd = fd
+            threading.Thread(target=forward_output, args=(fd,), daemon=True).start()
+    
+    # Send input to the process
+    os.write(handle_terminal_input.fd, data.encode())
+
+def forward_output(fd):
+    while True:
+        r, _, _ = select.select([fd], [], [])
+        if fd in r:
+            try:
+                data = os.read(fd, 1024)
+                socketio.emit('terminal_output', data.decode())
+            except OSError:
+                # Terminal closed
+                del handle_terminal_input.fd
+                break
+
+
 @socketio.on('connect')
 def handle_connect():
     print("Client connected")
@@ -160,4 +219,4 @@ def broadcast_metrics():
 threading.Thread(target=broadcast_metrics, daemon=True).start()
 
 if __name__ == '__main__':
-    socketio.run(app, host='192.168.1.50', port=5000, debug=False)
+    socketio.run(app, host='192.168.1.50', port=5000, debug=False, allow_unsafe_werkzeug=True)

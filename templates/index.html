@@ -1,144 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Car Dashboard</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f0f0f0;
-        }
-
-        .dashboard {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr;
-            gap: 20px;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .section {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        h2 {
-            color: #2c3e50;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 10px;
-            margin-top: 0;
-        }
-
-        .metric-group {
-            margin: 15px 0;
-        }
-
-        .metric-row {
-            margin: 8px 0;
-        }
-
-        .metric-label {
-            font-weight: bold;
-            color: #000000;
-        }
-
-        .metric-value {
-            color: #2c3e50;
-            width: 150px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-
-        th,
-        td {
-            padding: 8px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-
-        th {
-            background-color: #f8f9fa;
-        }
-
-        .control-section {
-            grid-column: 1 / -1;
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-        }
-
-        .button-row {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        button {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            flex: 1;
-        }
-
-        button:hover {
-            background-color: #2980b9;
-        }
-
-        .command-line {
-            background-color: #2c3e50;
-            color: white;
-            padding: 15px;
-            border-radius: 4px;
-            font-family: monospace;
-        }
-
-        .command-line input {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 4px;
-            border: none;
-        }
-
-        .camera-feed {
-            grid-column: 1 / -1;
-            text-align: center;
-        }
-
-        .camera-feed img {
-            max-width: 100%;
-            border-radius: 8px;
-        }
-    </style>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.1.0/css/xterm.min.css">
 </head>
-
 <body>
     <div class="dashboard">
         <div class="section metrics-section">
             <h2>METRICS</h2>
             <div class="metric-group">
-                <div class="metric-row"><span class="metric-label">STATE:</span> <span class="metric-value"
-                        id="state">-</span></div>
-                <div class="metric-row"><span class="metric-label">PREV_EVENT:</span> <span class="metric-value"
-                        id="prev-event">-</span></div>
-                <div class="metric-row"><span class="metric-label">UPCOMING_EVENT:</span> <span class="metric-value"
-                        id="next-event">-</span></div>
+                <div class="metric-row"><span class="metric-label">STATE:</span> <span class="metric-value" id="state">-</span></div>
+                <div class="metric-row"><span class="metric-label">PREV_EVENT:</span> <span class="metric-value" id="prev-event">-</span></div>
+                <div class="metric-row"><span class="metric-label">UPCOMING_EVENT:</span> <span class="metric-value" id="next-event">-</span></div>
             </div>
             <h3>ROUTINES:</h3>
             <div id="routines" class="metric-group">
@@ -177,143 +53,51 @@
         <div class="section telemetry-section">
             <h2>TELEMETRY</h2>
             <div class="metric-group">
-                <div class="metric-row"><span class="metric-label">SPEED:</span> <span class="metric-value"
-                        id="speed">-</span> km/h</div>
-                <div class="metric-row"><span class="metric-label">STEER:</span> <span class="metric-value"
-                        id="steer">-</span> °</div>
-                <div class="metric-row"><span class="metric-label">DISTANCE:</span> <span class="metric-value"
-                        id="distance">-</span> m</div>
-                <div class="metric-row"><span class="metric-label">SONAR_L:</span> <span class="metric-value"
-                        id="sonar-l">-</span> cm</div>
-                <div class="metric-row"><span class="metric-label">SONAR_R:</span> <span class="metric-value"
-                        id="sonar-r">-</span> cm</div>
-                <div class="metric-row"><span class="metric-label">SONAR_C:</span> <span class="metric-value"
-                        id="sonar-c">-</span> cm</div>
-                <div class="metric-row"><span class="metric-label">YAW:</span> <span class="metric-value"
-                        id="yaw">-</span> °</div>
-                <div class="metric-row"><span class="metric-label">HEADING:</span> <span class="metric-value"
-                        id="heading">-</span> </div>
+                <div class="metric-row"><span class="metric-label">SPEED:</span> <span class="metric-value" id="speed">-</span> km/h</div>
+                <div class="metric-row"><span class="metric-label">STEER:</span> <span class="metric-value" id="steer">-</span> °</div>
+                <div class="metric-row"><span class="metric-label">DISTANCE:</span> <span class="metric-value" id="distance">-</span> m</div>
+                <div class="metric-row"><span class="metric-label">SONAR_L:</span> <span class="metric-value" id="sonar_l">-</span> cm</div>
+                <div class="metric-row"><span class="metric-label">SONAR_R:</span> <span class="metric-value" id="sonar_r">-</span> cm</div>
+                <div class="metric-row"><span class="metric-label">SONAR_C:</span> <span class="metric-value" id="sonar_c">-</span> cm</div>
+                <div class="metric-row"><span class="metric-label">YAW:</span> <span class="metric-value" id="yaw">-</span> °</div>
+                <div class="metric-row"><span class="metric-label">HEADING:</span> <span class="metric-value" id="heading">-</span> </div>
             </div>
         </div>
 
-        <!-- Control Section -->
         <div class="control-section">
             <div class="section">
                 <h2>CONTROLS</h2>
                 <div class="button-row">
-                    <button onclick="runSSH('start_script')">Start Script</button>
-                    <button onclick="runSSH('stop_script')">Stop Script</button>
+                    <button>Start Script</button>
+                    <button>Stop Script</button>
                 </div>
                 <div class="button-row">
-                    <button onclick="runSSH('test_script')">Test Script</button>
-                    <button onclick="runSSH('imu_script')">IMU Script</button>
-                    <button onclick="runSSH('gps_script')">GPS Script</button>
+                    <button>Test Script</button>
+                    <button>IMU Script</button>
+                    <button>GPS Script</button>
                 </div>
             </div>
 
             <div class="section">
                 <h2>COMMAND LINE</h2>
                 <div class="button-row">
-                    <button onclick="runCustomScript()">Run Custom Script</button>
-                    <button onclick="stopCustomScript()">Stop Custom Script</button>
+                    <button>Run Custom Script</button>
+                    <button>Stop Custom Script</button>
                 </div>
                 <div class="command-line">
                     <input type="text" id="custom-script" placeholder="Enter custom script">
                 </div>
             </div>
         </div>
+
+        <div class="section terminal-section">
+            <h2>TERMINAL</h2>
+            <div id="terminal"></div>
+        </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.js"></script>
-    <script>
-        const socket = io();
-
-        socket.on('metrics_update', (data) => {
-            // Update main metrics
-            document.getElementById('state').textContent = data.STATE || '-';
-            document.getElementById('prev-event').textContent = data.PREV_EVENT || '-';
-            document.getElementById('next-event').textContent = data.UPCOMING_EVENT || '-';
-
-            // Update routines
-            const routinesContainer = document.getElementById('routines');
-            routinesContainer.innerHTML = data.ROUTINES?.join(', ') || '-';
-
-            // Update conditions
-            if (data.CONDITIONS) {
-                document.getElementById('condition-highway').textContent = data.CONDITIONS.HIGHWAY ?? '-';
-                document.getElementById('condition-can-overtake').textContent = data.CONDITIONS.CAN_OVERTAKE ?? '-';
-                document.getElementById('condition-trust-gps').textContent = data.CONDITIONS.TRUST_GPS ?? '-';
-                document.getElementById('condition-car-on-path').textContent = data.CONDITIONS.CAR_ON_PATH ?? '-';
-                document.getElementById('condition-no-lane').textContent = data.CONDITIONS.NO_LANE ?? '-';
-                document.getElementById('condition-rerouting').textContent = data.CONDITIONS.REROUTING ?? '-';
-            }
-
-            // Update speed metrics ONLY if has a value
-            if (data.SPEED !== undefined && data.SPEED !== '') {
-                document.getElementById('speed').textContent = data.SPEED;
-            }
-            if (data.STEER !== undefined && data.STEER !== '') {
-                document.getElementById('steer').textContent = data.STEER;
-            }
-            if (data.DISTANCE !== undefined && data.DISTANCE !== '') {
-                document.getElementById('distance').textContent = data.DISTANCE;
-            }
-            if (data.SONAR_L !== undefined && data.SONAR_L !== '') {
-                document.getElementById('sonar-l').textContent = data.SONAR_L;
-            }
-            if (data.SONAR_R !== undefined && data.SONAR_R !== '') {
-                document.getElementById('sonar-r').textContent = data.SONAR_R;
-            }
-            if (data.SONAR_C !== undefined && data.SONAR_C !== '') {
-                document.getElementById('sonar-c').textContent = data.SONAR_C;
-            }
-            if (data.YAW !== undefined && data.YAW !== '') {
-                document.getElementById('yaw').textContent = data.YAW;
-            }
-            if (data.HEADING !== undefined && data.HEADING !== '') {
-                document.getElementById('heading').textContent = data.HEADING;
-            }
-        });
-
-        async function runSSH(script) {
-            try {
-                const response = await fetch(`/${script}`, { method: 'POST' });
-                const result = await response.json();
-                alert(result.message);
-            } catch (error) {
-                alert('Error running script: ' + error);
-            }
-        }
-
-        async function runCustomScript() {
-            const script = document.getElementById('custom-script').value;
-            if (!script) {
-                alert('Please enter a script');
-                return;
-            }
-            try {
-                const response = await fetch('/run_custom_script', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ script })
-                });
-                const result = await response.json();
-                alert(result.message);
-            } catch (error) {
-                alert('Error running custom script: ' + error);
-            }
-        }
-
-        async function stopCustomScript() {
-            try {
-                const response = await fetch('/stop_custom_script', { method: 'POST' });
-                const result = await response.json();
-                alert(result.message);
-            } catch (error) {
-                alert('Error stopping custom script: ' + error);
-            }
-        }
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/xterm@5.1.0/lib/xterm.min.js"></script>
+    <script src="/static/js/scripts.js"></script>
 </body>
-
 </html>
