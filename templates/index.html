@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -60,7 +61,8 @@
             margin-top: 10px;
         }
 
-        th, td {
+        th,
+        td {
             padding: 8px;
             text-align: left;
             border-bottom: 1px solid #ddd;
@@ -125,14 +127,18 @@
         }
     </style>
 </head>
+
 <body>
     <div class="dashboard">
         <div class="section metrics-section">
             <h2>METRICS</h2>
             <div class="metric-group">
-                <div class="metric-row"><span class="metric-label">STATE:</span> <span class="metric-value" id="state">-</span></div>
-                <div class="metric-row"><span class="metric-label">PREV_EVENT:</span> <span class="metric-value" id="prev-event">-</span></div>
-                <div class="metric-row"><span class="metric-label">UPCOMING_EVENT:</span> <span class="metric-value" id="next-event">-</span></div>
+                <div class="metric-row"><span class="metric-label">STATE:</span> <span class="metric-value"
+                        id="state">-</span></div>
+                <div class="metric-row"><span class="metric-label">PREV_EVENT:</span> <span class="metric-value"
+                        id="prev-event">-</span></div>
+                <div class="metric-row"><span class="metric-label">UPCOMING_EVENT:</span> <span class="metric-value"
+                        id="next-event">-</span></div>
             </div>
             <h3>ROUTINES:</h3>
             <div id="routines" class="metric-group">
@@ -171,14 +177,22 @@
         <div class="section telemetry-section">
             <h2>TELEMETRY</h2>
             <div class="metric-group">
-                <div class="metric-row"><span class="metric-label">SPEED:</span> <span class="metric-value" id="speed">-</span> km/h</div>
-                <div class="metric-row"><span class="metric-label">STEER:</span> <span class="metric-value" id="steer">-</span> °</div>
-                <div class="metric-row"><span class="metric-label">DISTANCE:</span> <span class="metric-value" id="distance">-</span> m</div>
-                <div class="metric-row"><span class="metric-label">SONAR_L:</span> <span class="metric-value" id="sonar-l">-</span> cm</div>
-                <div class="metric-row"><span class="metric-label">SONAR_R:</span> <span class="metric-value" id="sonar-r">-</span> cm</div>
-                <div class="metric-row"><span class="metric-label">SONAR_C:</span> <span class="metric-value" id="sonar-c">-</span> cm</div>
-                <div class="metric-row"><span class="metric-label">YAW:</span> <span class="metric-value" id="yaw">-</span> °</div>
-                <div class="metric-row"><span class="metric-label">HEADING:</span> <span class="metric-value" id="heading">-</span> °</div>
+                <div class="metric-row"><span class="metric-label">SPEED:</span> <span class="metric-value"
+                        id="speed">-</span> km/h</div>
+                <div class="metric-row"><span class="metric-label">STEER:</span> <span class="metric-value"
+                        id="steer">-</span> °</div>
+                <div class="metric-row"><span class="metric-label">DISTANCE:</span> <span class="metric-value"
+                        id="distance">-</span> m</div>
+                <div class="metric-row"><span class="metric-label">SONAR_L:</span> <span class="metric-value"
+                        id="sonar-l">-</span> cm</div>
+                <div class="metric-row"><span class="metric-label">SONAR_R:</span> <span class="metric-value"
+                        id="sonar-r">-</span> cm</div>
+                <div class="metric-row"><span class="metric-label">SONAR_C:</span> <span class="metric-value"
+                        id="sonar-c">-</span> cm</div>
+                <div class="metric-row"><span class="metric-label">YAW:</span> <span class="metric-value"
+                        id="yaw">-</span> °</div>
+                <div class="metric-row"><span class="metric-label">HEADING:</span> <span class="metric-value"
+                        id="heading">-</span> </div>
             </div>
         </div>
 
@@ -226,19 +240,39 @@
 
             // Update conditions
             if (data.CONDITIONS) {
+                document.getElementById('condition-highway').textContent = data.CONDITIONS.HIGHWAY ?? '-';
+                document.getElementById('condition-can-overtake').textContent = data.CONDITIONS.CAN_OVERTAKE ?? '-';
                 document.getElementById('condition-trust-gps').textContent = data.CONDITIONS.TRUST_GPS ?? '-';
                 document.getElementById('condition-car-on-path').textContent = data.CONDITIONS.CAR_ON_PATH ?? '-';
+                document.getElementById('condition-no-lane').textContent = data.CONDITIONS.NO_LANE ?? '-';
+                document.getElementById('condition-rerouting').textContent = data.CONDITIONS.REROUTING ?? '-';
             }
 
-            // Update speed metrics
-            document.getElementById('speed').textContent = data.SPEED ?? '-';
-            document.getElementById('steer').textContent = data.STEER ?? '-';
-            document.getElementById('distance').textContent = data.DISTANCE ?? '-';
-            document.getElementById('sonar-l').textContent = data.SONAR_L ?? '-';
-            document.getElementById('sonar-r').textContent = data.SONAR_R ?? '-';
-            document.getElementById('sonar-c').textContent = data.SONAR_C ?? '-';
-            document.getElementById('yaw').textContent = data.YAW ?? '-';
-            document.getElementById('heading').textContent = data.HEADING ?? '-';
+            // Update speed metrics ONLY if has a value
+            if (data.SPEED !== undefined && data.SPEED !== '') {
+                document.getElementById('speed').textContent = data.SPEED;
+            }
+            if (data.STEER !== undefined && data.STEER !== '') {
+                document.getElementById('steer').textContent = data.STEER;
+            }
+            if (data.DISTANCE !== undefined && data.DISTANCE !== '') {
+                document.getElementById('distance').textContent = data.DISTANCE;
+            }
+            if (data.SONAR_L !== undefined && data.SONAR_L !== '') {
+                document.getElementById('sonar-l').textContent = data.SONAR_L;
+            }
+            if (data.SONAR_R !== undefined && data.SONAR_R !== '') {
+                document.getElementById('sonar-r').textContent = data.SONAR_R;
+            }
+            if (data.SONAR_C !== undefined && data.SONAR_C !== '') {
+                document.getElementById('sonar-c').textContent = data.SONAR_C;
+            }
+            if (data.YAW !== undefined && data.YAW !== '') {
+                document.getElementById('yaw').textContent = data.YAW;
+            }
+            if (data.HEADING !== undefined && data.HEADING !== '') {
+                document.getElementById('heading').textContent = data.HEADING;
+            }
         });
 
         async function runSSH(script) {
@@ -281,4 +315,5 @@
         }
     </script>
 </body>
+
 </html>

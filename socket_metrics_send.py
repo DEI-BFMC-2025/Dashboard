@@ -25,11 +25,10 @@ ROUTINES = [
     ["FOLLOW_LANE", "DRIVE_DESIRED_SPEED", "UPDATE_STATE"]
 ]
 CONDITIONS = [
-    {"CAN_OVERTAKE": True, "HIGHWAY": True},
-    {"TRUST_GPS": False, "CAR_ON_PATH": True},
-    {"REROUTING": True, "NO_LANE": True, "CAN_OVERTAKE": True},
-    {"TRUST_GPS": False, "CAN_OVERTAKE": False},
-    {"TRUST_GPS": False, "CAN_OVERTAKE": True}
+    {"CAN_OVERTAKE": False, "HIGHWAY": True, "REROUTING": True, "NO_LANE": True,"TRUST_GPS": True, "CAR_ON_PATH": False},
+    {"CAN_OVERTAKE": True, "HIGHWAY": False, "REROUTING": False, "NO_LANE": True,"TRUST_GPS": False, "CAR_ON_PATH": True},
+    {"CAN_OVERTAKE": False, "HIGHWAY": True, "REROUTING": False, "NO_LANE": False,"TRUST_GPS": True, "CAR_ON_PATH": True},
+    {"CAN_OVERTAKE": True, "HIGHWAY": False, "REROUTING": True, "NO_LANE": False,"TRUST_GPS": False, "CAR_ON_PATH": False}
 ]
 
 def generate_metrics():
@@ -40,7 +39,15 @@ def generate_metrics():
         "PREV_EVENT": random.choice(EVENTS + [None]),
         "UPCOMING_EVENT": random.choice(EVENTS),
         "ROUTINES": random.choice(ROUTINES),
-        "CONDITIONS": random.choice(CONDITIONS)
+        "CONDITIONS": random.choice(CONDITIONS),
+        "SPEED": round(random.uniform(0.0, 10.0), 2),
+        "STEER": round(random.uniform(-5.0, 5.0), 2),
+        "DISTANCE": round(random.uniform(0.0, 100.0), 2),
+        "SONAR_L": round(random.uniform(0.0, 50.0), 2),
+        "SONAR_R": round(random.uniform(0.0, 50.0), 2),
+        "SONAR_C": round(random.uniform(0.0, 50.0), 2),
+        "YAW": round(random.uniform(-180.0, 180.0), 2),
+        "HEADING": random.choice(["NORTH", "EAST", "SOUTH", "WEST"]),
     }
 
 class MetricSender:
@@ -52,11 +59,15 @@ class MetricSender:
         """Continuously attempt to connect to the receiver."""
         while True:
             try:
-                self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-                self.sock.connect(SOCKET_PATH)
-                self.connected = True
-                print("Connected to receiver.")
-                break  # Exit the loop on successful connection
+                if os.path.exists(SOCKET_PATH):
+                    self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+                    self.sock.connect(SOCKET_PATH)
+                    self.connected = True
+                    print("Connected to receiver.")
+                    break  # Exit the loop on successful connection
+                else:
+                    print("Socket file does not exist. Waiting for receiver...")
+                    time.sleep(2)
             except (FileNotFoundError, ConnectionRefusedError):
                 print("Waiting for receiver...")
                 time.sleep(2)
@@ -67,15 +78,16 @@ class MetricSender:
     def send_metrics(self, metrics):
         """
         Send metrics to the receiver.
-        
+
         Args:
             metrics (dict): A dictionary containing the metrics to send.
-        
+
         Returns:
             bool: True if metrics were sent successfully, False otherwise.
         """
         if not self.connected:
             print("Not connected to receiver.")
+            self.connect_to_server()  # Attempt to reconnect
             return False
 
         try:
@@ -85,7 +97,7 @@ class MetricSender:
 
             data = json.dumps(metrics).encode('utf-8') + b'\n'  # Add newline separator
             self.sock.sendall(data)
-            print(f"Sent metrics: {metrics}")
+            #print(f"Sent metrics: {metrics}")
             return True
         except (BrokenPipeError, ConnectionRefusedError):
             print("Connection lost. Attempting to reconnect...")
@@ -100,10 +112,10 @@ class MetricSender:
         """Close the connection."""
         if self.sock:
             self.sock.close()
-        if os.path.exists(SOCKET_PATH):
-            os.remove(SOCKET_PATH)
+        # Do not remove the socket file, since the receiver might still be running.
         self.connected = False
         print("Connection closed.")
+
 
 if __name__ == "__main__":
     sender = MetricSender()

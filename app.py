@@ -1,12 +1,12 @@
 import cv2                                          # type: ignore
 import time
-from socket_metrics_receive import MetricReceiver  # Import the new receiver
-from flask import Flask, render_template, Response, jsonify
+from socket_metrics_receive import MetricReceiver  
+from flask import Flask, render_template, Response, jsonify, request
 from flask_socketio import SocketIO, emit           # type: ignore
 import threading
 import paramiko                                     # type: ignore
 from unix_socket_camera import UnixSocketCamera
-from socket_metrics_receive import MetricReceiver
+
 
 app = Flask(__name__)
 socketio = SocketIO(app)
@@ -82,6 +82,64 @@ def stop_script():
         ssh.exec_command(f"pkill -f {SCRIPT_NAME}")
         ssh.close()
         return jsonify(success=True, message="Script stopped")
+    except Exception as e:
+        return jsonify(success=False, message=str(e))
+    
+@app.route('/run_custom_script', methods=['POST'])
+def run_custom_script():
+    """Run a custom script via SSH."""
+    try:
+        # Get the custom script from the request
+        data = request.get_json()
+        script = data.get('script')
+        if not script:
+            return jsonify(success=False, message="No script provided")
+
+        # Establish SSH connection
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(HOSTNAME, username=USERNAME, password=PASSWORD)
+
+        # Execute the custom script
+        stdin, stdout, stderr = ssh.exec_command(script)
+        output = stdout.read().decode()
+        error = stderr.read().decode()
+
+        # Close the SSH connection
+        ssh.close()
+
+        # Check for errors
+        if error:
+            return jsonify(success=False, message=f"Error executing script: {error}")
+
+        return jsonify(success=True, message="Custom script executed", output=output)
+
+    except Exception as e:
+        return jsonify(success=False, message=str(e))
+
+@app.route('/stop_custom_script', methods=['POST'])
+def stop_custom_script():
+    """Stop the custom script via SSH."""
+    try:
+        # Establish SSH connection
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(HOSTNAME, username=USERNAME, password=PASSWORD)
+
+        # Kill the custom script process
+        stdin, stdout, stderr = ssh.exec_command("pkill -f custom_script")
+        output = stdout.read().decode()
+        error = stderr.read().decode()
+
+        # Close the SSH connection
+        ssh.close()
+
+        # Check for errors
+        if error:
+            return jsonify(success=False, message=f"Error stopping script: {error}")
+
+        return jsonify(success=True, message="Custom script stopped", output=output)
+
     except Exception as e:
         return jsonify(success=False, message=str(e))
 

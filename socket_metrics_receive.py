@@ -50,6 +50,7 @@ class MetricReceiver:
         server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         server.bind(SOCKET_PATH)
         server.listen(1)
+        server.settimeout(1.0)  # Add a timeout to the server socket
         print(f"Listening on {SOCKET_PATH}...")
 
         while self.running:
@@ -57,15 +58,15 @@ class MetricReceiver:
                 conn, _ = server.accept()
                 print("Producer connected!")
                 conn.settimeout(1.0)  # Timeout for receive operations
-                
+
                 while self.running:
                     try:
                         chunk = conn.recv(1024)
                         if not chunk:
                             break
-                            
+
                         self.buffer += chunk
-                        
+
                         # Process complete messages (separated by \n)
                         while b'\n' in self.buffer:
                             line, self.buffer = self.buffer.split(b'\n', 1)
@@ -76,10 +77,12 @@ class MetricReceiver:
                                     self.metrics.update(metrics)        # Update shared metrics
                             except json.JSONDecodeError:
                                 print(f"Invalid JSON: {line}")
-                                
+
                     except socket.timeout:
                         continue  # Normal timeout for shutdown checks
-                        
+
+            except socket.timeout:
+                continue  # Normal timeout for shutdown checks
             except Exception as e:
                 print(f"Connection error: {e}")
             finally:
