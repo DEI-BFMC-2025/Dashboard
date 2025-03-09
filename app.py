@@ -1,19 +1,27 @@
-import cv2 # type: ignore
-import threading
+import cv2                                          # type: ignore
 import time
-import subprocess
-from flask import Flask, render_template, Response, jsonify
-from unix_socket_camera import UnixSocketCamera
 from socket_metrics_receive import MetricReceiver  # Import the new receiver
+from flask import Flask, render_template, Response, jsonify
+from flask_socketio import SocketIO, emit           # type: ignore
+import threading
+import paramiko                                     # type: ignore
+from unix_socket_camera import UnixSocketCamera
+from socket_metrics_receive import MetricReceiver
 
 app = Flask(__name__)
+socketio = SocketIO(app)
+
+# SSH Configuration
+HOSTNAME = "192.168.1.50"
+USERNAME = "pi"
+PASSWORD = "gradenigo6"
+SCRIPT_PATH = "/home/pi/Desktop/FlaskWebApp/looping.py"
+SCRIPT_NAME = "looping.py"
 
 # Global variables
 frame = None
-current_node = "Start"
-next_event = "Move Forward"
-metrics = {}  # Store metrics from the receiver
-metrics_lock = threading.Lock()  # Thread-safe access to metrics
+metrics = {}
+metrics_lock = threading.Lock()
 
 # Initialize components
 cap = UnixSocketCamera(socket_addr="/tmp/bfmc_socket.sock", frame_size=(320, 240))
@@ -27,7 +35,7 @@ def capture_frames():
 
 def run_metric_receiver():
     """Run the metric receiver in the background."""
-    print("Starting metric receiver...")  # Debugging
+    print("Starting metric receiver...")
     metric_receiver.start()
 
 # Start background threads
@@ -51,29 +59,47 @@ def index():
 def video_feed():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
-@app.route('/metrics')
-def get_metrics():
-    """Get the latest metrics from the receiver."""
-    with metrics_lock:
-        #print("Serving metrics:", metrics)  # Debugging
-        return jsonify(metrics)
-
-@app.route('/status')
-def status():
-    return jsonify({
-        'current_node': current_node,
-        'next_event': next_event
-    })
-
-@app.route('/run-ssh', methods=['POST'])
-def run_ssh():
-    """Execute an SSH command."""
+@app.route('/start_script', methods=['POST'])
+def start_script():
+    """Start the script via SSH."""
     try:
-        result = subprocess.run(["ls", "/home/pi/Desktop"], capture_output=True, text=True, check=True)
-        output = result.stdout.strip()
-    except subprocess.CalledProcessError as e:
-        output = f"Error: {e}"
-    return jsonify(output=output)
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(HOSTNAME, username=USERNAME, password=PASSWORD)
+        ssh.exec_command(f"nohup python3 {SCRIPT_PATH} > /dev/null 2>&1 &")
+        ssh.close()
+        return jsonify(success=True, message="Script started")
+    except Exception as e:
+        return jsonify(success=False, message=str(e))
+
+@app.route('/stop_script', methods=['POST'])
+def stop_script():
+    """Stop the script via SSH."""
+    try:
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(HOSTNAME, username=USERNAME, password=PASSWORD)
+        ssh.exec_command(f"pkill -f {SCRIPT_NAME}")
+        ssh.close()
+        return jsonify(success=True, message="Script stopped")
+    except Exception as e:
+        return jsonify(success=False, message=str(e))
+
+@socketio.on('connect')
+def handle_connect():
+    print("Client connected")
+    with metrics_lock:
+        socketio.emit('metrics_update', metrics)
+
+def broadcast_metrics():
+    """Broadcast metrics to all connected clients."""
+    while True:
+        with metrics_lock:
+            socketio.emit('metrics_update', metrics)
+        time.sleep(1)
+
+# Start the metrics broadcast thread
+threading.Thread(target=broadcast_metrics, daemon=True).start()
 
 if __name__ == '__main__':
-    app.run(host='192.168.1.50', port=5000, debug=False)
+    socketio.run(app, host='192.168.1.50', port=5000, debug=False)
