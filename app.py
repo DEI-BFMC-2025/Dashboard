@@ -15,9 +15,9 @@ app = Flask(__name__)
 socketio = SocketIO(app)
 
 # SSH Configuration
-HOSTNAME = "192.168.1.50"
-USERNAME = "pi"
-PASSWORD = "gradenigo6"
+HOSTNAME = "10.144.52.162"
+USERNAME = "eugen"
+PASSWORD = "Ionuteugen06"
 SCRIPT_PATH = "/home/pi/Desktop/FlaskWebApp/looping.py"
 SCRIPT_NAME = "looping.py"
 
@@ -27,7 +27,7 @@ metrics = {}
 metrics_lock = threading.Lock()
 
 # Initialize components
-cap = UnixSocketCamera(socket_addr="/tmp/bfmc_socket.sock", frame_size=(320, 240))
+cap = UnixSocketCamera(socket_addr="/tmp/bfmc_socket2.sock", frame_size=(320, 240))
 metric_receiver = MetricReceiver(metrics, metrics_lock)
 
 def capture_frames():
@@ -219,4 +219,4 @@ def broadcast_metrics():
 threading.Thread(target=broadcast_metrics, daemon=True).start()
 
 if __name__ == '__main__':
-    socketio.run(app, host='192.168.1.50', port=5000, debug=False, allow_unsafe_werkzeug=True)
+    socketio.run(app, host=HOSTNAME, port=5000, debug=False, allow_unsafe_werkzeug=True)
