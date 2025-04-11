@@ -2,9 +2,9 @@ from flask import Flask, render_template, Response, jsonify, request
 from flask_socketio import SocketIO, emit
 import threading
 import paramiko
-import subprocess
 from unix_socket_camera import UnixSocketCamera
 from socket_metrics_receive import MetricReceiver
+from unix_socket_lidar import LidarReceiver
 import time
 import cv2
 import os
@@ -15,20 +15,45 @@ app = Flask(__name__)
 socketio = SocketIO(app)
 
 # SSH Configuration
-HOSTNAME = "10.144.52.162"
+HOSTNAME = "10.144.105.55"
 USERNAME = "eugen"
-PASSWORD = "Ionuteugen06"
-SCRIPT_PATH = "/home/pi/Desktop/FlaskWebApp/looping.py"
+PASSWORD = "gradenigo6"
+SCRIPT_PATH = "/home/eugen/Desktop/FlaskWebApp/looping.py"
 SCRIPT_NAME = "looping.py"
+
+
+
+
+COMMANDS = {
+    "brain": {
+        "start": "mkdir /home/eugen/Desktop/MyFolder",
+        "stop": "mkdir /home/eugen/Desktop/MyFolder2"
+    },
+    "camera": {
+        "start": "python3 /path/to/camera_script.py",
+        "stop": "pkill -f camera_script.py"
+    },
+    "imu": {
+        "start": "python3 /path/to/imu_script.py",
+        "stop": "pkill -f imu_script.py"
+    }
+}
+
+
+
+
 
 # Global variables
 frame = None
 metrics = {}
 metrics_lock = threading.Lock()
+lidar_data = []
+lidar_lock = threading.Lock()
 
 # Initialize components
 cap = UnixSocketCamera(socket_addr="/tmp/bfmc_socket2.sock", frame_size=(320, 240))
 metric_receiver = MetricReceiver(metrics, metrics_lock)
+lidar_receiver = LidarReceiver(lidar_data, lidar_lock)
 
 def capture_frames():
     global frame
@@ -44,6 +69,7 @@ def run_metric_receiver():
 # Start background threads
 threading.Thread(target=capture_frames, daemon=True).start()
 threading.Thread(target=run_metric_receiver, daemon=True).start()
+threading.Thread(target=lidar_receiver.start, daemon=True).start()
 
 def generate_frames():
     global frame
@@ -62,116 +88,44 @@ def index():
 def video_feed():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
-@app.route('/start_script', methods=['POST'])
-def start_script():
-    """Start the script via SSH."""
+
+
+
+
+
+
+def execute_ssh_command(command):
+    """Execute a command via SSH and return the result."""
     try:
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         ssh.connect(HOSTNAME, username=USERNAME, password=PASSWORD)
-        ssh.exec_command(f"nohup python3 {SCRIPT_PATH} > /dev/null 2>&1 &")
-        ssh.close()
-        return jsonify(success=True, message="Script started")
-    except Exception as e:
-        return jsonify(success=False, message=str(e))
-
-@app.route('/stop_script', methods=['POST'])
-def stop_script():
-    """Stop the script via SSH."""
-    try:
-        ssh = paramiko.SSHClient()
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect(HOSTNAME, username=USERNAME, password=PASSWORD)
-        ssh.exec_command(f"pkill -f {SCRIPT_NAME}")
-        ssh.close()
-        return jsonify(success=True, message="Script stopped")
-    except Exception as e:
-        return jsonify(success=False, message=str(e))
-    
-@app.route('/test_script', methods=['POST'])
-def test_script():
-    """Placeholder for script execution"""
-    return jsonify(
-        success=False,
-        message="Test script not implemented yet",
-        status=501
-    ), 501
-
-@app.route('/imu_script', methods=['POST'])
-def imu_script():
-    """Placeholder for script execution"""
-    return jsonify(
-        success=False,
-        message="IMU script not implemented yet",
-        status=501
-    ), 501
-
-@app.route('/gps_script', methods=['POST'])
-def gps_script():
-    """Placeholder for script execution"""
-    return jsonify(
-        success=False,
-        message="GPS script not implemented yet",
-        status=501
-    ), 501
-    
-@app.route('/run_custom_script', methods=['POST'])
-def run_custom_script():
-    """Run a custom script via SSH."""
-    try:
-        # Get the custom script from the request
-        data = request.get_json()
-        script = data.get('script')
-        if not script:
-            return jsonify(success=False, message="No script provided")
-
-        # Establish SSH connection
-        ssh = paramiko.SSHClient()
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect(HOSTNAME, username=USERNAME, password=PASSWORD)
-
-        # Execute the custom script
-        stdin, stdout, stderr = ssh.exec_command(script)
+        stdin, stdout, stderr = ssh.exec_command(command)
         output = stdout.read().decode()
         error = stderr.read().decode()
-
-        # Close the SSH connection
         ssh.close()
-
-        # Check for errors
-        if error:
-            return jsonify(success=False, message=f"Error executing script: {error}")
-
-        return jsonify(success=True, message="Custom script executed", output=output)
-
+        return {"success": True, "output": output, "error": error}
     except Exception as e:
-        return jsonify(success=False, message=str(e))
+        return {"success": False, "error": str(e)}
 
-@app.route('/stop_custom_script', methods=['POST'])
-def stop_custom_script():
-    """Stop the custom script via SSH."""
-    try:
-        # Establish SSH connection
-        ssh = paramiko.SSHClient()
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect(HOSTNAME, username=USERNAME, password=PASSWORD)
+@app.route('/control/<system>/<action>', methods=['POST'])
+def control_system(system, action):
+    """Control a system (brain/camera/imu) with start/stop actions."""
+    if system not in COMMANDS or action not in ["start", "stop"]:
+        return jsonify(success=False, message="Invalid system or action")
+    
+    command = COMMANDS[system][action]
+    result = execute_ssh_command(command)
+    
+    if result["success"]:
+        if result["error"]:
+            return jsonify(success=True, message=f"Command executed with warnings: {result['error']}")
+        return jsonify(success=True, message=f"{system.capitalize()} {action}ed successfully")
+    else:
+        return jsonify(success=False, message=f"Failed to {action} {system}: {result['error']}")
 
-        # Kill the custom script process
-        stdin, stdout, stderr = ssh.exec_command("pkill -f custom_script")
-        output = stdout.read().decode()
-        error = stderr.read().decode()
 
-        # Close the SSH connection
-        ssh.close()
 
-        # Check for errors
-        if error:
-            return jsonify(success=False, message=f"Error stopping script: {error}")
-
-        return jsonify(success=True, message="Custom script stopped", output=output)
-
-    except Exception as e:
-        return jsonify(success=False, message=str(e))
 
 @socketio.on('terminal_input')
 def handle_terminal_input(data):
@@ -215,8 +169,22 @@ def broadcast_metrics():
             socketio.emit('metrics_update', metrics)
         time.sleep(1)
 
+@socketio.on('connect', namespace='/lidar')
+def handle_lidar_connect():
+    with lidar_lock:
+        emit('lidar_update', {'points': lidar_data})
+
+def broadcast_lidar():
+    """Broadcast LIDAR data to all connected clients."""
+    while True:
+        with lidar_lock:
+            if lidar_data:  # Only send if we have data
+                socketio.emit('lidar_update', {'points': lidar_data}, namespace='/lidar')
+        time.sleep(0.1)  # Faster update for LIDAR
+
 # Start the metrics broadcast thread
 threading.Thread(target=broadcast_metrics, daemon=True).start()
+threading.Thread(target=broadcast_lidar, daemon=True).start()
 
 if __name__ == '__main__':
     socketio.run(app, host=HOSTNAME, port=5000, debug=False, allow_unsafe_werkzeug=True)

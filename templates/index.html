@@ -66,28 +66,31 @@
 
         <div class="control-section">
             <div class="section">
-                <h2>CONTROLS</h2>
+                <h2>SYSTEM CONTROLS</h2>
+                <!-- Brain Controls -->
                 <div class="button-row">
-                    <button>Start Script</button>
-                    <button>Stop Script</button>
+                    <button class="system-control" data-system="brain" data-action="start">Start Brain</button>
+                    <button class="system-control" data-system="brain" data-action="stop">Stop Brain</button>
                 </div>
+                
+                <!-- Camera Controls -->
                 <div class="button-row">
-                    <button>Test Script</button>
-                    <button>IMU Script</button>
-                    <button>GPS Script</button>
+                    <button class="system-control" data-system="camera" data-action="start">Start Camera</button>
+                    <button class="system-control" data-system="camera" data-action="stop">Stop Camera</button>
+                </div>
+                
+                <!-- IMU Controls -->
+                <div class="button-row">
+                    <button class="system-control" data-system="imu" data-action="start">Start IMU</button>
+                    <button class="system-control" data-system="imu" data-action="stop">Stop IMU</button>
                 </div>
             </div>
 
             <div class="section">
-                <h2>COMMAND LINE</h2>
-                <div class="button-row">
-                    <button>Run Custom Script</button>
-                    <button>Stop Custom Script</button>
-                </div>
-                <div class="command-line">
-                    <input type="text" id="custom-script" placeholder="Enter custom script">
-                </div>
+                <h2>LIDAR VISUALIZATION</h2>
+                <div id="lidar-container" style="width: 300px; height: 300px; background: black;"></div>
             </div>
+
         </div>
 
         <div class="section terminal-section">
@@ -95,6 +98,8 @@
             <div id="terminal"></div>
         </div>
     </div>
+
+
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xterm@5.1.0/lib/xterm.min.js"></script>
