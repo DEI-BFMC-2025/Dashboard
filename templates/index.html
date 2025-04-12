@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Dashboard</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.1.0/css/xterm.min.css">
+</head>
+<body>
+    <div class="dashboard">
+        <div class="section metrics-section">
+            <h2>METRICS</h2>
+            <div class="metric-group">
+                <div class="metric-row"><span class="metric-label">STATE:</span> <span class="metric-value" id="state">-</span></div>
+                <div class="metric-row"><span class="metric-label">PREV_EVENT:</span> <span class="metric-value" id="prev-event">-</span></div>
+                <div class="metric-row"><span class="metric-label">UPCOMING_EVENT:</span> <span class="metric-value" id="next-event">-</span></div>
+            </div>
+            <h3>ROUTINES:</h3>
+            <div id="routines" class="metric-group">
+                <div class="metric-value">-</div>
+            </div>
+            <h3>CONDITIONS:</h3>
+            <table>
+                <tr>
+                    <th>highway</th>
+                    <th>can_overtake</th>
+                    <th>trust_gps</th>
+                </tr>
+                <tr>
+                    <td id="condition-highway">-</td>
+                    <td id="condition-can-overtake">-</td>
+                    <td id="condition-trust-gps">-</td>
+                </tr>
+                <tr>
+                    <th>car_on_path</th>
+                    <th>no_lane</th>
+                    <th>rerouting</th>
+                </tr>
+                <tr>
+                    <td id="condition-car-on-path">-</td>
+                    <td id="condition-no-lane">-</td>
+                    <td id="condition-rerouting">-</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="section camera-section">
+            <h2>CAMERA FEED</h2>
+            <img id="video-stream" src="/video_feed" width="320" height="240" />
+        </div>
+
+        <div class="section telemetry-section">
+            <h2>TELEMETRY</h2>
+            <div class="metric-group">
+                <div class="metric-row"><span class="metric-label">SPEED:</span> <span class="metric-value" id="speed">-</span> km/h</div>
+                <div class="metric-row"><span class="metric-label">STEER:</span> <span class="metric-value" id="steer">-</span> °</div>
+                <div class="metric-row"><span class="metric-label">DISTANCE:</span> <span class="metric-value" id="distance">-</span> m</div>
+                <div class="metric-row"><span class="metric-label">SONAR_L:</span> <span class="metric-value" id="sonar_l">-</span> cm</div>
+                <div class="metric-row"><span class="metric-label">SONAR_R:</span> <span class="metric-value" id="sonar_r">-</span> cm</div>
+                <div class="metric-row"><span class="metric-label">SONAR_C:</span> <span class="metric-value" id="sonar_c">-</span> cm</div>
+                <div class="metric-row"><span class="metric-label">YAW:</span> <span class="metric-value" id="yaw">-</span> °</div>
+                <div class="metric-row"><span class="metric-label">HEADING:</span> <span class="metric-value" id="heading">-</span> </div>
+            </div>
+        </div>
+
+        <div class="control-section">
+            <div class="section">
+                <h2>SYSTEM CONTROLS</h2>
+                <!-- Brain Controls -->
+                <div class="button-row">
+                    <button class="system-control" data-system="brain" data-action="start">Start Brain</button>
+                    <button class="system-control" data-system="brain" data-action="stop">Stop Brain</button>
+                </div>
+                
+                <!-- Camera Controls -->
+                <div class="button-row">
+                    <button class="system-control" data-system="camera" data-action="start">Start Camera</button>
+                    <button class="system-control" data-system="camera" data-action="stop">Stop Camera</button>
+                </div>
+                
+                <!-- IMU Controls -->
+                <div class="button-row">
+                    <button class="system-control" data-system="imu" data-action="start">Start IMU</button>
+                    <button class="system-control" data-system="imu" data-action="stop">Stop IMU</button>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>LIDAR VISUALIZATION</h2>
+                <div id="lidar-container" style="width: 300px; height: 300px; background: black;"></div>
+            </div>
+
+        </div>
+
+        <div class="section terminal-section">
+            <h2>TERMINAL</h2>
+            <div id="terminal"></div>
+        </div>
+    </div>
+
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xterm@5.1.0/lib/xterm.min.js"></script>
+    <script src="/static/js/scripts.js"></script>
+</body>
+</html>
