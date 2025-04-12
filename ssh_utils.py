@@ -31,13 +31,17 @@ def execute_ssh_command(command, system=None, action=None):
                 ssh.exec_command(f"kill -2 {pid}")
                 process_tracker[system]["pid"] = None
                 return {"success": True}
+        else:
+            pass    
+            # Implement here for other type of commands
+            # Example for executing a command directly
 
-        stdin, stdout, stderr = ssh.exec_command(command)
-        return {
-            "success": True,
-            "output": stdout.read().decode(),
-            "error": stderr.read().decode()
-        }
+            #stdin, stdout, stderr = ssh.exec_command(command)
+            #return {
+            #    "success": True,
+            #    "output": stdout.read().decode(),
+            #    "error": stderr.read().decode()
+            #}
 
     except Exception as e:
         return {"success": False, "error": str(e)}
