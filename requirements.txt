@@ -1,0 +1,6 @@
+flask==3.0.3
+Flask-SocketIO==5.5.1
+numpy==1.24.4
+opencv-python==4.11.0.86
+paramiko==3.5.1
+python-dotenv==1.0.1

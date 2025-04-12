@@ -15,32 +15,24 @@ app = Flask(__name__)
 socketio = SocketIO(app)
 
 # SSH Configuration
-HOSTNAME = "10.144.105.55"
 USERNAME = "eugen"
 PASSWORD = "gradenigo6"
-SCRIPT_PATH = "/home/eugen/Desktop/FlaskWebApp/looping.py"
-SCRIPT_NAME = "looping.py"
-
-
-
+HOSTNAME = "localhost"
 
 COMMANDS = {
     "brain": {
-        "start": "mkdir /home/eugen/Desktop/MyFolder",
-        "stop": "mkdir /home/eugen/Desktop/MyFolder2"
+        "start": "python3 /path/to/brain_script.py",
+        "stop": "soft_exit"  # is a special flag for the handler
     },
     "camera": {
         "start": "python3 /path/to/camera_script.py",
-        "stop": "pkill -f camera_script.py"
+        "stop": "soft_exit"
     },
     "imu": {
         "start": "python3 /path/to/imu_script.py",
-        "stop": "pkill -f imu_script.py"
+        "stop": "soft_exit"
     }
 }
-
-
-
 
 
 # Global variables
@@ -88,44 +80,71 @@ def index():
 def video_feed():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
+# Global variable to track running processes
+process_tracker = {
+    "camera": {"pid": None, "channel": None},
+    "imu": {"pid": None, "channel": None},
+    "brain": {"pid": None, "channel": None}
+}
 
-
-
-
-
-
-def execute_ssh_command(command):
-    """Execute a command via SSH and return the result."""
+def execute_ssh_command(command, system=None, action=None):
+    """Execute a command via SSH and track processes"""
     try:
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         ssh.connect(HOSTNAME, username=USERNAME, password=PASSWORD)
+        
+        if action == "start" and system:
+            # Start process in background and get PID
+            transport = ssh.get_transport()
+            channel = transport.open_session()
+            channel.exec_command(f"nohup {command} > /dev/null 2>&1 & echo $!")
+            
+            # Get PID from stdout
+            pid = channel.recv(1024).decode().strip()
+            process_tracker[system]["pid"] = pid
+            process_tracker[system]["channel"] = channel
+            
+            return {"success": True, "pid": pid}
+            
+        elif action == "stop" and system:
+            # Send SIGINT (CTRL+C equivalent)
+            pid = process_tracker[system]["pid"]
+            if pid:
+                stdin, stdout, stderr = ssh.exec_command(f"kill -2 {pid}")
+                process_tracker[system]["pid"] = None
+                return {"success": True}
+            
+        # Fallback for regular commands
         stdin, stdout, stderr = ssh.exec_command(command)
         output = stdout.read().decode()
         error = stderr.read().decode()
-        ssh.close()
         return {"success": True, "output": output, "error": error}
+        
     except Exception as e:
         return {"success": False, "error": str(e)}
+    finally:
+        if 'ssh' in locals():
+            ssh.close()
 
 @app.route('/control/<system>/<action>', methods=['POST'])
 def control_system(system, action):
-    """Control a system (brain/camera/imu) with start/stop actions."""
+    """Enhanced system control with soft termination"""
     if system not in COMMANDS or action not in ["start", "stop"]:
         return jsonify(success=False, message="Invalid system or action")
     
     command = COMMANDS[system][action]
-    result = execute_ssh_command(command)
+    
+    # Handle soft exit for stop command
+    if action == "stop" and command == "soft_exit":
+        result = execute_ssh_command("", system, "stop")
+    else:
+        result = execute_ssh_command(command, system, action)
     
     if result["success"]:
-        if result["error"]:
-            return jsonify(success=True, message=f"Command executed with warnings: {result['error']}")
         return jsonify(success=True, message=f"{system.capitalize()} {action}ed successfully")
     else:
         return jsonify(success=False, message=f"Failed to {action} {system}: {result['error']}")
-
-
-
 
 @socketio.on('terminal_input')
 def handle_terminal_input(data):
@@ -178,9 +197,9 @@ def broadcast_lidar():
     """Broadcast LIDAR data to all connected clients."""
     while True:
         with lidar_lock:
-            if lidar_data:  # Only send if we have data
+            if lidar_data:  # send only if we have data
                 socketio.emit('lidar_update', {'points': lidar_data}, namespace='/lidar')
-        time.sleep(0.1)  # Faster update for LIDAR
+        time.sleep(0.1)     # update rate
 
 # Start the metrics broadcast thread
 threading.Thread(target=broadcast_metrics, daemon=True).start()

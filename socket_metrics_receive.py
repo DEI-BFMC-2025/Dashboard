@@ -23,25 +23,6 @@ class MetricReceiver:
             os.remove(SOCKET_PATH)
         exit(0)
 
-    def format_metrics(self, metrics):
-        """Format metrics for display (optional)."""
-        output = []
-        output.append(f"CHECKPOINT: {metrics.get('CHECKPOINT', '')}")
-        output.append(f"STATE: {metrics.get('STATE', '')}")
-        output.append(f"PREV EVENT: {metrics.get('PREV_EVENT', '')}")
-        output.append(f"NEXT EVENT: {metrics.get('UPCOMING_EVENT', '')}")
-
-        output.append("ROUTINES:")
-        for routine in metrics.get('ROUTINES', []):
-            output.append(f"  - {routine}")
-
-        output.append("CONDITIONS:")
-        for condition, value in metrics.get('CONDITIONS', {}).items():
-            output.append(f"  {condition}: {value}")
-
-        return "\n".join(output)
-
-
     def start(self):
         """Start the metric receiver server."""
         if os.path.exists(SOCKET_PATH):
