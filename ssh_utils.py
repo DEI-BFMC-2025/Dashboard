@@ -31,8 +31,7 @@ COMMANDS = {
         "restart": "cd /home/eugen/Desktop/Docker/raspberry && docker compose down && docker compose up -d"
     },
     "imu": {
-        "start": "python3 /path/to/imu_script.py",
-        "stop": "soft_exit"
+        "restart": "sudo systemctl restart imu.service"
     }
 }
 
