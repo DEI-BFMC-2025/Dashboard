@@ -67,28 +67,39 @@
         <div class="control-section">
             <div class="section">
                 <h2>SYSTEM CONTROLS</h2>
-                <!-- Brain Controls -->
+              
+                <div class="button-row">
+                    <button class="system-control" data-system="utils" data-action="start">Start Utils</button>
+                    <button class="system-control" data-system="utils" data-action="stop">Stop Utils</button>
+                </div>
+                
+          
                 <div class="button-row">
                     <button class="system-control" data-system="brain" data-action="start">Start Brain</button>
                     <button class="system-control" data-system="brain" data-action="stop">Stop Brain</button>
                 </div>
                 
-                <!-- Camera Controls -->
+        
                 <div class="button-row">
-                    <button class="system-control" data-system="camera" data-action="start">Start Camera</button>
-                    <button class="system-control" data-system="camera" data-action="stop">Stop Camera</button>
+                    <button class="system-control" data-system="brain_random" data-action="start">Start Brain random</button>
+                    <button class="system-control" data-system="brain_random" data-action="stop">Stop Brain random</button>
                 </div>
-                
-                <!-- IMU Controls -->
+
                 <div class="button-row">
-                    <button class="system-control" data-system="imu" data-action="start">Start IMU</button>
-                    <button class="system-control" data-system="imu" data-action="stop">Stop IMU</button>
+                    <button class="system-control" data-system="brain_joy" data-action="start">Start Brain joystick</button>
+                    <button class="system-control" data-system="brain_joy" data-action="stop">Stop Brain joystick</button>
+                </div>
+
+                <div class="button-row">
+                    <button class="system-control" data-system="camera"    data-action="restart">Restart Camera</button>
+                    <button class="system-control" data-system="dashboard" data-action="restart">Restart Dashboard</button>
+                    <button class="system-control" data-system="docker"    data-action="restart">Restart Docker</button>
                 </div>
             </div>
 
             <div class="section">
                 <h2>LIDAR VISUALIZATION</h2>
-                <div id="lidar-container" style="width: 300px; height: 300px; background: black;"></div>
+                <div id="lidar-container" style="width: 400px; height: 400px; background: black;"></div>
             </div>
 
         </div>

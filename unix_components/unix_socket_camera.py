@@ -7,7 +7,7 @@ import time
 import signal
 
 class UnixSocketCamera:
-    def __init__(self, socket_addr="/tmp/bfmc_socket.sock", frame_size=(320, 240)):
+    def __init__(self, socket_addr="/tmp/bfmc_camera_dashboard.sock", frame_size=(320, 240)):
         self.socket_addr = socket_addr
         self.frame_size = frame_size
         self.msg_size = frame_size[0] * frame_size[1] * 3
@@ -141,7 +141,7 @@ class UnixSocketCamera:
         self.shutdown()
 
 if __name__ == "__main__":
-    cap = UnixSocketCamera(socket_addr="/tmp/bfmc_socket.sock", frame_size=(320, 240))
+    cap = UnixSocketCamera(socket_addr="/tmp/bfmc_camera_dashboard.sock", frame_size=(320, 240))
     
     try:
         while cap.running:  # Use the running flag as condition

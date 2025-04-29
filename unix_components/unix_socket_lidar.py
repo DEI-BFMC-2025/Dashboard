@@ -46,7 +46,6 @@ class LidarReceiver:
                         if not chunk:
                             break
                         self.buffer += chunk
-
                         while b'\n' in self.buffer:
                             line, self.buffer = self.buffer.split(b'\n', 1)
                             try:

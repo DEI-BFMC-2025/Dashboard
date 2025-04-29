@@ -24,7 +24,9 @@ def broadcast_lidar(socketio):
         time.sleep(0.1) # Adjustable
 
 def start_broadcast_threads(socketio):
-    metric_receiver.start()
+    threading.Thread(target=metric_receiver.start, daemon=True).start()
     threading.Thread(target=lidar_receiver.start, daemon=True).start()
+
     threading.Thread(target=broadcast_metrics, args=(socketio,), daemon=True).start()
     threading.Thread(target=broadcast_lidar, args=(socketio,), daemon=True).start()
+

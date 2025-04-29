@@ -1,8 +1,8 @@
 class LidarVisualizer {
     constructor(containerId) {
         this.container = document.getElementById(containerId);
-        this.width = 400;
-        this.height = 400;
+        this.width = this.container.clientWidth;  //get from the index.html
+        this.height = this.container.clientHeight;
         this.points = [];
 
         this.minDistance = 0.10; // in meters
@@ -202,12 +202,12 @@ async function handleSystemControl(event) {
         });
         const result = await response.json();
         
-        // Update button state visually
+        // On succes update button state visually  // TODO: Handle better the cases in which there is no start & stop , i.e. when we have only restart 
         if (result.success) {
-            button.classList.add('active');
-            const oppositeAction = action === 'start' ? 'stop' : 'start';
-            document.querySelector(`[data-system="${system}"][data-action="${oppositeAction}"]`)
-                .classList.remove('active');
+            //button.classList.add('active');
+            //const oppositeAction = action === 'start' ? 'stop' : 'start';
+            //document.querySelector(`[data-system="${system}"][data-action="${oppositeAction}"]`)
+            //    .classList.remove('active');
         } else {
             // Only show alert for failures
             alert(`Failed to ${action} ${system}: ${result.message}`);

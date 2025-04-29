@@ -2,7 +2,7 @@ import threading, time, cv2
 from unix_components.unix_socket_camera import UnixSocketCamera
 
 frame = None
-cap = UnixSocketCamera(socket_addr="/tmp/bfmc_socket2.sock", frame_size=(320, 240))
+cap = UnixSocketCamera(socket_addr="/tmp/bfmc_camera_dashboard.sock", frame_size=(320, 240))
 
 def capture_frames():
     global frame
