@@ -230,7 +230,7 @@ function updateMetrics(data) {
     if (data.CONDITIONS) {
         document.getElementById('condition-highway').textContent      = data.CONDITIONS.HIGHWAY ?? '-';
         document.getElementById('condition-can-overtake').textContent = data.CONDITIONS.CAN_OVERTAKE ?? '-';
-        document.getElementById('condition-trust-gps').textContent    = data.CONDITIONS.TRUST_GPS ?? '-';
+        document.getElementById('condition-tunnel').textContent       = data.CONDITIONS.TUNNEL ?? '-';
         document.getElementById('condition-car-on-path').textContent  = data.CONDITIONS.CAR_ON_PATH ?? '-';
         document.getElementById('condition-no-lane').textContent      = data.CONDITIONS.NO_LANE ?? '-';
         document.getElementById('condition-rerouting').textContent    = data.CONDITIONS.REROUTING ?? '-';
