@@ -5,12 +5,16 @@ class LidarVisualizer {
         this.height = this.container.clientHeight;
         this.points = [];
 
-        this.minDistance = 0.10; // in meters
-        this.maxDistance = 0.35; // in meters
+        this.tofDistance = 0; // TOF distance in mm
+
+        this.minDistance = 0.0; // in meters
+        this.maxDistance = 0.50; // in meters
         this.scale = 6; // pixels per cm
 
         this.angleOffset = 90; // Adjust this value to compensate for misalignment
 
+        //Shift center of the drawings
+        this.shiftOnY = 50;
         // Create canvas
         this.canvas = document.createElement('canvas');
         this.canvas.width = this.width;
@@ -51,6 +55,59 @@ class LidarVisualizer {
         this.drawGrid();
     }
 
+    setFrontTofDistance(distance) {
+        this.tofFrontDistance = Number(distance) || 0;
+    }
+
+    setLeftTofDistance(distance) {
+        this.tofLeftDistance = Number(distance) || 0;
+    }
+
+    // Front TOF line drawing
+// Front TOF line drawing
+drawFrontTofLine() {
+    const centerX = this.width / 2;
+    const centerY = this.height / 2 + this.shiftOnY;
+    
+    // Use LIDAR's range but limit to TOF's capabilities
+    const minCM = this.minDistance * 100; // 10cm (matches LIDAR start)
+    const maxCM = 25.5;                   // TOF's max 25.5cm
+
+    const tofCM = this.tofFrontDistance / 10;
+    const clampedCM = Math.max(minCM, Math.min(maxCM, tofCM));
+    
+    // Calculate position relative to LIDAR's visualization
+    const positionFromCenter = (clampedCM - minCM) * this.scale;
+
+    this.ctx.beginPath();
+    this.ctx.moveTo(centerX - 30, centerY - positionFromCenter);
+    this.ctx.lineTo(centerX + 30, centerY - positionFromCenter);
+    this.ctx.strokeStyle = 'cyan';
+    this.ctx.lineWidth = 4;
+    this.ctx.stroke();
+}
+
+// Left TOF line drawing
+drawLeftTofLine() {
+    const centerX = this.width / 2;
+    const centerY = this.height / 2 + this.shiftOnY;
+    const minCM = this.minDistance * 100; // 10cm
+    const maxCM = 25.5;                   // 25.5cm
+
+    const tofCM = this.tofLeftDistance / 10;
+    const clampedCM = Math.max(minCM, Math.min(maxCM, tofCM));
+    
+    // Position calculation with LIDAR alignment
+    const positionFromCenter = (clampedCM - minCM) * this.scale;
+
+    this.ctx.beginPath();
+    this.ctx.moveTo(centerX - positionFromCenter, centerY - 30);
+    this.ctx.lineTo(centerX - positionFromCenter, centerY + 30);
+    this.ctx.strokeStyle = 'magenta';
+    this.ctx.lineWidth = 4;
+    this.ctx.stroke();
+}
+
     // Draw the grid and distance rings
     // and radial lines
     drawGrid() {
@@ -59,7 +116,7 @@ class LidarVisualizer {
         ctx.fillRect(0, 0, this.width, this.height);
 
         const centerX = this.width / 2;
-        const centerY = this.height / 2;
+        const centerY = this.height / 2 + this.shiftOnY;
 
         // Draw robot center
         ctx.fillStyle = 'rgba(0, 255, 42, 0.4)';
@@ -132,9 +189,17 @@ class LidarVisualizer {
 
     draw() {
         this.drawGrid();
+        
+        //the tof lines
+        if (this.tofFrontDistance) {
+            this.drawFrontTofLine();
+        }
+        if (this.tofLeftDistance) {
+            this.drawLeftTofLine();
+        }
 
         const centerX = this.width / 2;
-        const centerY = this.height / 2;
+        const centerY = this.height / 2 + this.shiftOnY;
 
         const minCM = this.minDistance * 100;
         const maxCM = this.maxDistance * 100;
@@ -149,7 +214,7 @@ class LidarVisualizer {
             const y = centerY + offsetY;
 
             // Normalize distance to a range of 0 to 1 and map to rgb values
-            const ratio = (distance - minCM) / (maxCM - minCM);
+            const ratio = (distance - 15) / (maxCM - 15); //minCM or 15 cm for better viz
             const r = Math.min(255, Math.floor(255 * (1 - ratio)));
             const g = Math.min(255, Math.floor(255 * ratio));
             const b = 0;
@@ -169,9 +234,12 @@ class LidarVisualizer {
 document.addEventListener('DOMContentLoaded', () => {
     const socket = io();
     initializeTerminal(socket);
-    setupEventListeners(socket);
-    // Add this line to initialize LIDAR visualizer
-    new LidarVisualizer('lidar-container');
+    
+    // Create and store the LIDAR instance
+    const lidarVisualizer = new LidarVisualizer('lidar-container');
+    
+    // Pass the instance to setup
+    setupEventListeners(socket, lidarVisualizer);  // Add parameter here
 });
 
 function initializeTerminal(socket) {
@@ -182,13 +250,24 @@ function initializeTerminal(socket) {
     socket.on('terminal_output', output => term.write(output));
 }
 
-function setupEventListeners(socket) {
+function setupEventListeners(socket, lidarVisualizer) {
     // System control buttons
     document.querySelectorAll('.system-control').forEach(button => {
         button.addEventListener('click', handleSystemControl);
     });
 
-    socket.on('metrics_update', updateMetrics);
+    socket.on('metrics_update', (data) => {
+        // Update metrics section
+        updateMetrics(data);
+
+        //for the lines
+        if (data.TOF_FRONT !== undefined) {
+            lidarVisualizer.setFrontTofDistance(data.TOF_FRONT);
+        }
+        if (data.TOF_LEFT !== undefined) {
+            lidarVisualizer.setLeftTofDistance(data.TOF_LEFT);
+        }
+    });
 }
 
 async function handleSystemControl(event) {
@@ -239,7 +318,7 @@ function updateMetrics(data) {
     const metrics = [
         'SPEED', 'STEER', 'DISTANCE', 
         'SONAR_L', 'SONAR_R', 'SONAR_C', 
-        'YAW', 'HEADING'
+        'YAW', 'HEADING','TOF_FRONT','TOF_LEFT'
     ];
 
     metrics.forEach(metric => {
