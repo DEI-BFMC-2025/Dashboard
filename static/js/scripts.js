@@ -154,37 +154,46 @@ drawLeftTofLine() {
         const angles = [45, 90, 135, 180, 225, 270, 315];
         
         angles.forEach(angle => {
-            // Convert to original coordinate system angles
             const originalAngle = (angle + 90) % 360;
             const rad = originalAngle * Math.PI / 180;
-
+                
             const endRadius = (maxCM - minCM) * this.scale;
             const endX = centerX + Math.cos(rad) * endRadius;
             const endY = centerY + Math.sin(rad) * endRadius;
-
+                
             ctx.beginPath();
             ctx.moveTo(centerX, centerY);
             ctx.lineTo(endX, endY);
             ctx.stroke();
-
-            // flippe the angles, find the labbeling issue/bug in the future
+                
+            // flip angles to match display
             angle = 360 - angle;
-
+                
+            // remap to signed labels where appropriate
+            let displayAngle = angle;
+            if (angle === 225) displayAngle = -135;
+            else if (angle === 270) displayAngle = -90;
+            else if (angle === 315) displayAngle = -45;
+            
+                
             // label positioning
             let textOffsetX = 0, textOffsetY = 0;
             if (angle === 45 || angle === 315) textOffsetX = -15;
             if (angle === 135 || angle === 225) textOffsetX = -5;
             if (angle === 90) textOffsetY = 2;
             if (angle === 270) textOffsetX = -5;
-            if (angle === 180) textOffsetX = -10;
-
-            // label in rotated coordinates
+            if (angle === 180) textOffsetX = -25;
+                
             const labelRadius = endRadius + 25;
             const labelX = centerX + Math.cos(rad) * labelRadius;
             const labelY = centerY + Math.sin(rad) * labelRadius;
-            
-            ctx.fillText(`${angle}°`, labelX + textOffsetX, labelY + textOffsetY);  //FLIPED THE LABELS
+                
+            if (angle === 180)
+                ctx.fillText(`-180° 180°`, labelX + textOffsetX, labelY + textOffsetY);
+            else
+                ctx.fillText(`${displayAngle}°`, labelX + textOffsetX, labelY + textOffsetY);
         });
+
     }
 
     draw() {
