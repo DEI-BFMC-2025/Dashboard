@@ -325,15 +325,19 @@ function updateMetrics(data) {
     }
 
     const metrics = [
-        'SPEED', 'STEER', 'DISTANCE', 
-        'SONAR_L', 'SONAR_R', 'SONAR_C', 
-        'YAW', 'HEADING','TOF_FRONT','TOF_LEFT'
+        'SPEED_CMD','SPEED', 'STEER', 'DISTANCE', 
+        'YAW', 'HEADING','TOF_FRONT','TOF_LEFT','HEADLIGHTS'
     ];
 
     metrics.forEach(metric => {
         const element = document.getElementById(metric.toLowerCase());
         if (element && data[metric] !== undefined && data[metric] !== '') {
-            element.textContent = data[metric];
+            if (metric === 'HEADLIGHTS') {
+                element.textContent = data[metric] ? 'ON' : 'OFF';
+            } else {
+                element.textContent = data[metric];
+            }
         }
+
     });
 }
