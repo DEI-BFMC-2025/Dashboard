@@ -14,14 +14,22 @@ class LidarVisualizer {
         this.angleOffset = 90; // Adjust this value to compensate for misalignment
 
         //Shift center of the drawings
-        this.shiftOnY = 50;
+        this.shiftOnY = 0;
+        this.shiftOnX = 100;
         // Create canvas
         this.canvas = document.createElement('canvas');
-        this.canvas.width = this.width;
+        this.canvas.width = this.width + this.shiftOnX;
         this.canvas.height = this.height;
-        this.canvas.style.border = "1px solid #444";
+        this.canvas.style.border = "0px solid #444";
         this.container.appendChild(this.canvas);
         this.ctx = this.canvas.getContext('2d');
+
+        this.carImage = new Image();
+        this.carImage.src = 'images/car.png';  
+
+        this.carImage.onload = () => {
+            this.draw(); // triggers re-draw now that the image is ready
+        };
 
         // Connect to WebSocket
         this.socket = io('/lidar');
@@ -66,7 +74,7 @@ class LidarVisualizer {
     // Front TOF line drawing
 // Front TOF line drawing
 drawFrontTofLine() {
-    const centerX = this.width / 2;
+    const centerX = this.width / 2 + + this.shiftOnX;
     const centerY = this.height / 2 + this.shiftOnY;
     
     // Use LIDAR's range but limit to TOF's capabilities
@@ -89,7 +97,7 @@ drawFrontTofLine() {
 
 // Left TOF line drawing
 drawLeftTofLine() {
-    const centerX = this.width / 2;
+    const centerX = this.width / 2 + this.shiftOnX;
     const centerY = this.height / 2 + this.shiftOnY;
     const minCM = this.minDistance * 100; // 10cm
     const maxCM = 25.5;                   // 25.5cm
@@ -112,23 +120,15 @@ drawLeftTofLine() {
     // and radial lines
     drawGrid() {
         const ctx = this.ctx;
-        ctx.fillStyle = '#111';
-        ctx.fillRect(0, 0, this.width, this.height);
 
-        const centerX = this.width / 2;
+        const centerX = this.width / 2+ + this.shiftOnX;
         const centerY = this.height / 2 + this.shiftOnY;
 
-        // Draw robot center
-        ctx.fillStyle = 'rgba(0, 255, 42, 0.4)';
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, 6, 0, Math.PI * 2);
-        ctx.fill();
-
         // Draw distance rings as semicircles
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+        ctx.strokeStyle = 'rgba(170, 170, 170, 0.3)';
         ctx.lineWidth = 1;
-        ctx.font = '10px Arial';
-        ctx.fillStyle = 'white';
+        ctx.font = '14px Helvetica';
+        ctx.fillStyle = 'rgba(240, 240, 240, 0.3)';
 
         const minCM = this.minDistance * 100;
         const maxCM = this.maxDistance * 100;
@@ -198,6 +198,19 @@ drawLeftTofLine() {
 
     draw() {
         this.drawGrid();
+
+        const center_x = this.width / 2 + + this.shiftOnX;
+        const center_y = this.height / 2 + this.shiftOnY;
+        const carWidth = 130;
+        const carHeight = 180;
+
+        if (this.carImage.complete && this.carImage.naturalWidth !== 0) {
+            this.ctx.drawImage(this.carImage, center_x - carWidth / 2, center_y - carHeight / 2, carWidth, carHeight);
+        } else {
+            // Fallback rectangle if image fails to load
+            this.ctx.fillStyle = 'rgba(0, 150, 255, 0.5)';
+            this.ctx.fillRect(center_X - carWidth / 2, center_y - carHeight / 2, carWidth, carHeight);
+        }
         
         //the tof lines
         if (this.tofFrontDistance) {
@@ -207,7 +220,7 @@ drawLeftTofLine() {
             this.drawLeftTofLine();
         }
 
-        const centerX = this.width / 2;
+        const centerX = this.width / 2 + + this.shiftOnX;
         const centerY = this.height / 2 + this.shiftOnY;
 
         const minCM = this.minDistance * 100;

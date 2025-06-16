@@ -1,138 +1,179 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "San Francisco", "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
     margin: 20px;
-    background-color: #D4DCFF;
+    background: linear-gradient(to bottom right, #1a1a1ad0, #2f2f2fc9);
+    color: #ffffff;
 }
 
+/* Dashboard Layout */
 .dashboard {
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr;
-    gap: 20px;
+    grid-template-columns: 300px repeat(6, 1fr);
+    gap: 24px;
     max-width: 1400px;
     margin: 0 auto;
 }
 
+/* Card / Panel Style */
 .section {
-    background: white;
+    background: rgba(250, 250, 250, 0.19);
+    backdrop-filter: blur(80px);
+    -webkit-backdrop-filter: blur(90px);
+    border-radius: 30px;
     padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 20px 20px 20px rgb(0, 0, 0, 0.2);
+    border: 0px solid rgba(180, 180, 180, 0);
+    transition: all 0.3s ease;
 }
 
+/* Section Headings */
 h2 {
-    color: #2c3e50;
-    border-bottom: 2px solid #3498db;
-    padding-bottom: 10px;
+    color: #fbfbff;
+    font-size: 30px;
+    font-weight: 800;
     margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 0px solid rgba(160, 160, 160, 0.3);
 }
 
+/* Metrics */
 .metric-group {
-    margin: 15px 0;
+    margin: 20px 0;
 }
 
 .metric-row {
-    margin: 8px 0;
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    align-items: flex-start;
 }
 
 .metric-label {
-    font-weight: bold;
-    color: #000000;
+    font-weight: 600;
+    color: #fffafa;
 }
 
 .metric-value {
-    color: #2c3e50;
-    width: 150px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    color: #dddddd;
+    font-weight: 600;
 }
 
 table {
     width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
+    border-collapse: separate; /* allows border-radius to work */
+    border-spacing: 0;          /* removes gaps */
+    margin-top: 20px;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.5); /* subtle shadow */
 }
 
 th, td {
-    padding: 8px;
+    padding: 12px;
     text-align: left;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid #d4d4d4;
 }
 
 th {
-    background-color: #f8f9fa;
+    background-color: rgba(250, 250, 250, 0.7);
+    font-weight: 500;
+    color: #444;
 }
 
+/* Control Section */
 .control-section {
     grid-column: 1 / -1;
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 10px;
+}
+
+.metrics-section {
+    /*grid-column: 1 / span ;
+    /*max-width: 700px; /* optional to limit width */
 }
 
 .system-control.active {
-    background-color: #4CAF50;
+    background-color: #4f5964;
     color: white;
 }
 
+/* Buttons */
 .button-row {
     display: flex;
-    gap: 10px;
-    margin-bottom: 10px;
+    gap: 20px;
+    margin-bottom: 12px;
+    justify-content: center;
 }
 
 button {
-    background-color: #3498db;
-    color: white;
+    background: #464646;
+    color: rgb(255, 255, 255);
     border: none;
-    padding: 10px 20px;
-    border-radius: 4px;
+    padding: 12px 12px;
+    border-radius: 12px;
     cursor: pointer;
-    transition: background-color 0.3s;
-    flex: 1;
+    font-weight: 600;
+    font-size: 15px;
+    width: 160px; 
+    transition: background 0.3s ease, transform 0.2s;
 }
 
 button:hover {
-    background-color: #2980b9;
+    background: #005bb5;
+    transform: translateY(-1px);
 }
 
-.command-line {
-    background-color: #2c3e50;
-    color: white;
-    padding: 15px;
-    border-radius: 4px;
-    font-family: monospace;
+/* Terminal / Command Line */
+.command-line, #terminal {
+    background-color: rgba(150, 150, 150, 0.2);
+    color: #1c1c1e;
+    padding: 16px;
+    border-radius: 12px;
+    font-family: SFMono-Regular, Menlo, monospace;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
 }
 
+/* Inputs */
 .command-line input {
     width: 100%;
-    padding: 10px 20px 10px 10px;
-    margin: 10px 0;
-    border-radius: 4px;
+    padding: 12px;
+    margin: 12px 0;
+    border-radius: 8px;
     border: none;
-    box-sizing: border-box;
+    background-color: rgba(220, 220, 220, 0.8);
+    color: #1c1c1e;
+    font-family: inherit;
+}
+
+/* Terminal Scroll */
+#terminal {
+    height: 300px;
+    overflow-y: auto;
 }
 
 .camera-feed {
-    grid-column: 1 / -1;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 20px;
     text-align: center;
 }
 
+
 .camera-feed img {
-    max-width: 100%;
-    border-radius: 8px;
+    width: 100%;
+    max-width: 100%;  
+    height: auto;
+    border-radius: 16px;
+    box-shadow: 6px 8px 20px rgba(0, 0, 0, 0.1);
 }
 
-.terminal-section {
-    grid-column: 1 / -1;
-}
-
-#terminal {
-    background-color: #2c3e50;
-    color: white;
-    padding: 15px;
-    border-radius: 4px;
-    font-family: monospace;
-    height: 300px;
-    overflow: hidden;
+.camera-section img {
+    display: flex;
+    align-items: flex-end; /* Allow each child to keep its own height */
+    width: 100%;      /* take full width of container */
+    height: auto;     /* keep aspect ratio */
+    max-width: 100%;  /* prevent overflow */
+    border-radius: 16px;
+    box-shadow: 6px 8px 20px rgba(0, 0, 0, 0.1);
 }
