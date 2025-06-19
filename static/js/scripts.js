@@ -191,9 +191,10 @@ drawLeftTofLine() {
 
     draw() {
 
-        // Clear the canvas before drawing new frame
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        
+        // Draw semi-transparent black rectangle to fade out previous frame
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.1)'; // adjust alpha for faster/slower fade
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
         this.drawGrid();
         
         //the tof lines
