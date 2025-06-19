@@ -190,6 +190,10 @@ drawLeftTofLine() {
     }
 
     draw() {
+
+        // Clear the canvas before drawing new frame
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        
         this.drawGrid();
         
         //the tof lines
