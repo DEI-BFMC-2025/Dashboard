@@ -207,6 +207,7 @@ drawLeftTofLine() {
         }
 
         const centerX = this.width / 2 + this.shiftOnX;
+        
         const centerY = this.height / 2 + this.shiftOnY;
 
         const minCM = this.minDistance * 100;
