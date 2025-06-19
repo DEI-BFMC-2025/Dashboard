@@ -43,12 +43,14 @@ h2 {
 
 .metric-row {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start; /* align left instead of space-between */
+    gap: 10px; /* space between label and value */
     padding: 6px 0;
-    align-items: flex-start;
+    align-items: center;
 }
 
 .metric-label {
+    width: 320px;
     font-weight: 600;
     color: #fffafa;
 }
