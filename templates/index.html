@@ -5,13 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Car Dashboard</title>
     <link rel="stylesheet" href="/static/css/styles.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.1.0/css/xterm.min.css">
+    <link rel="stylesheet" href="/static/css/xterm.min.css">
 </head>
 <body>
     <div class="dashboard">
         <div class="section metrics-section" style="grid-column: 1 / span 3;">
             <h2>Metrics</h2>
             <div class="metric-group">
+                <div class="metric-row"><span class="metric-label">CHECKPOINT:</span> <span class="metric-value" id="closest_node">-</span></div>
                 <div class="metric-row"><span class="metric-label">STATE:</span> <span class="metric-value" id="state">-</span></div>
                 <div class="metric-row"><span class="metric-label">PREV_EVENT:</span> <span class="metric-value" id="prev-event">-</span></div>
                 <div class="metric-row"><span class="metric-label">UPCOMING_EVENT:</span> <span class="metric-value" id="next-event">-</span></div>
@@ -144,8 +145,8 @@
                 </div>
 
                 <div class="button-row">
-                    <button class="system-control" data-system="brain_joy" data-action="start">Start Brain joystick</button>
-                    <button class="system-control" data-system="brain_joy" data-action="stop">Stop Brain joystick</button>
+                    <button class="system-control" data-system="brain_joy" data-action="start">Start Brain resume</button>
+                    <button class="system-control" data-system="brain_joy" data-action="stop">Stop Brain resume</button>
                 </div>
 
                 <div class="button-row">
@@ -165,10 +166,8 @@
         </div>
     </div>
 
-
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xterm@5.1.0/lib/xterm.min.js"></script>
+    <script src="/static/js/socket.io.js"></script>
+    <script src="/static/js/xterm.min.js"></script>
     <script src="/static/js/scripts.js"></script>
 </body>
 </html>

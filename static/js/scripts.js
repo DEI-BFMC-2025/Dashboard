@@ -305,6 +305,7 @@ async function handleSystemControl(event) {
 
 
 function updateMetrics(data) {
+    document.getElementById('closest_node').textContent = data.CLOSEST_NODE || '-';
     document.getElementById('state').textContent = data.STATE || '-';
     document.getElementById('prev-event').textContent = data.PREV_EVENT || '-';
     document.getElementById('next-event').textContent = data.UPCOMING_EVENT || '-';

@@ -2,7 +2,12 @@ import paramiko
 
 USERNAME = "eugen"
 PASSWORD = "gradenigo6"
-HOSTNAME = "10.144.105.55"
+#HOSTNAME = "10.144.105.55"
+#HOSTNAME = "192.168.50.173" COMPETITION
+HOSTNAME = "192.168.43.74"
+#HOSTNAME = "172.20.10.4"
+
+
 
 COMMANDS = {
     "utils": {
@@ -18,7 +23,7 @@ COMMANDS = {
         "stop":  "docker exec bfmc2025_container pkill -2 -f main_brain.py"
     },
     "brain_joy": {
-        "start": "docker exec bfmc2025_container bash -c 'source /opt/ros/noetic/setup.bash && source /catkin_ws/devel/setup.bash && python3 main_brain.py --rc'",
+        "start": "docker exec bfmc2025_container bash -c 'source /opt/ros/noetic/setup.bash && source /catkin_ws/devel/setup.bash && python3 main_brain.py --resume'",
         "stop":  "docker exec bfmc2025_container pkill -2 -f main_brain.py"
     },
     "camera": {
